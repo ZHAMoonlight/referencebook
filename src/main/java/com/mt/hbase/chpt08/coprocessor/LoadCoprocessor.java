@@ -1,4 +1,4 @@
-package com.mt.hbase.chpt8.coprocessor;
+package com.mt.hbase.chpt08.coprocessor;
 
 import com.mt.hbase.connection.HBaseConnectionFactory;
 import org.apache.hadoop.hbase.Coprocessor;

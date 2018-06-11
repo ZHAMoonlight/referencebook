@@ -1,9 +1,9 @@
-package com.mt.hbase.chpt8.coprocessor;
+package com.mt.hbase.chpt08.coprocessor;
 
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
-import com.mt.hbase.chpt8.coprocessor.generated.SumDTO;
+import com.mt.hbase.chpt08.coprocessor.generated.SumDTO;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.Coprocessor;

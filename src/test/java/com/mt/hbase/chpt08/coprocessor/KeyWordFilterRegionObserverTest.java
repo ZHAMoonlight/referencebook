@@ -1,4 +1,4 @@
-package com.mt.hbase.chpt8.coprocessor;
+package com.mt.hbase.chpt08.coprocessor;
 
 import junit.framework.TestCase;
 import org.apache.commons.collections.CollectionUtils;

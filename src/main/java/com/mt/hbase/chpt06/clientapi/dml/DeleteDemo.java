@@ -1,4 +1,4 @@
-package com.mt.hbase.chpt06.clientapi;
+package com.mt.hbase.chpt06.clientapi.dml;
 
 import com.mt.hbase.connection.HBaseConnectionFactory;
 import org.apache.hadoop.hbase.Cell;
@@ -12,9 +12,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 
-/**
- * Created by pengxu on 2018/2/8.
- */
 public class DeleteDemo {
 
     private static final String TABLE="s_behavior";
@@ -28,7 +25,7 @@ public class DeleteDemo {
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        String rowkeyToDelete = "54321000000000000000092233705187843078982";
+        String rowkeyToDelete = "54321000000000000000092233705146317032071";
         Table table = HBaseConnectionFactory.getConnection().getTable(TableName.valueOf(TABLE));
 
 
@@ -36,24 +33,28 @@ public class DeleteDemo {
         Result result = table.get(oneGet);
         /**
          * 下行输出如下：
-         * lineNo=1，qualifier=o,value=1004
-         * lineNo=1，qualifier=v,value=1004
+         * lineNo=1，qualifier=o,value=1002
+         * lineNo=1，qualifier=v,value=1002
          */
         printResult(result,"1");
 
         Delete deleteColumn = new Delete(Bytes.toBytes(rowkeyToDelete));
+        //设置需要删除的列
         deleteColumn.addColumn(Bytes.toBytes(CF_PC),Bytes.toBytes(COLUMN_VIEW));
+        //设置需要删除一天之前的数据版本
+        deleteColumn.setTimestamp(System.currentTimeMillis() - 24*60*60*1000);
         table.delete(deleteColumn);
 
         oneGet = new Get(Bytes.toBytes(rowkeyToDelete));
         result = table.get(oneGet);
         /**
          * 下行输出如下：
-         * lineNo=2，qualifier=o,value=1004
+         * lineNo=2，qualifier=o,value=1002
          */
         printResult(result,"2");
 
         Delete deleteFamily = new Delete(Bytes.toBytes(rowkeyToDelete));
+        //设置需要删除的列族
         deleteFamily.addFamily(Bytes.toBytes(CF_PC));
         table.delete(deleteFamily);
 
@@ -65,6 +66,7 @@ public class DeleteDemo {
         printResult(result,"3");
 
         Delete deleteRow = new Delete(Bytes.toBytes(rowkeyToDelete));
+        //删除整行
         table.delete(deleteRow);
 
         oneGet = new Get(Bytes.toBytes(rowkeyToDelete));
