@@ -30,7 +30,7 @@ import java.util.NavigableSet;
 /**
  * Created by pengxu on 2017/10/27.
  *
- * 该Observer的作用是实现对结果关键字的和谐
+ * 该Observer的作用是实现对结果关键字的过滤
  *
  */
 public class KeyWordFilterRegionObserver implements RegionObserver {
