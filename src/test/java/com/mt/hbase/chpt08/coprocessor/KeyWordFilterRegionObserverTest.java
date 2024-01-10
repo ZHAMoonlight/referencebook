@@ -1,22 +1,21 @@
 package com.mt.hbase.chpt08.coprocessor;
 
-import junit.framework.TestCase;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.junit.Test;
 
 /**
  * Created by pengxu on 2017/10/27.
  */
-public class KeyWordFilterRegionObserverTest extends TestCase{
+public class KeyWordFilterRegionObserverTest{
 
 
     //敏感词

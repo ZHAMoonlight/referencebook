@@ -38,6 +38,8 @@ public class RowKeyUtil {
         //运行时下行输出结果为：09223370520503124434
         System.out.println(rowKeyUtil.formatTimeStamp(time));
 
+        System.out.println(rowKeyUtil.formatUserId(12345)+ rowKeyUtil.formatTimeStamp(System.currentTimeMillis())+1);
+
     }
 
 

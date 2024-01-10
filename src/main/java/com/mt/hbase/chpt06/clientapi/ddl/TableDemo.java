@@ -1,59 +1,79 @@
 package com.mt.hbase.chpt06.clientapi.ddl;
 
 import com.mt.hbase.connection.HBaseConnectionFactory;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
+import com.mt.hbase.constants.Constants;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
+import org.apache.hadoop.hbase.client.TableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
+/**
+ * @author pengxu
+ */
 public class TableDemo {
 
     /**
      * 创建表
+     *
      * @param tableName 表名
      * @param familyNames 列族名
-     * @return
      */
     public boolean createTable(String tableName, String... familyNames) throws Exception {
-        Admin admin = HBaseConnectionFactory.getConnection().getAdmin();
-        if (admin.tableExists(TableName.valueOf(tableName))) {
-            return false;
+        Admin admin = null;
+        try {
+            admin = HBaseConnectionFactory.getConnection().getAdmin();
+            if (admin.tableExists(TableName.valueOf(tableName))) {
+                return false;
+            }
+            //通过TableDescriptor类来描述一个表，ColumnDescriptor描述一个列族
+            TableDescriptorBuilder tableBuilder = TableDescriptorBuilder
+                .newBuilder(TableName.valueOf(tableName));
+
+            List<ColumnFamilyDescriptor> familyList = new ArrayList<>();
+            for (String familyName : familyNames) {
+                ColumnFamilyDescriptor oneFamily = ColumnFamilyDescriptorBuilder
+                    .newBuilder(familyName.getBytes()).build();
+                familyList.add(oneFamily);
+            }
+            TableDescriptor tableDes = tableBuilder.setColumnFamilies(familyList).build();
+            admin.createTable(tableDes);
+            return true;
+        } finally {
+            if (null != admin) {
+                admin.close();
+            }
         }
-        //通过HTableDescriptor类来描述一个表，HColumnDescriptor描述一个列族
-        HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
-        for (String familyName : familyNames) {
-            HColumnDescriptor oneFamily= new HColumnDescriptor(familyName);
-            //设置行键编码格式
-            oneFamily.setDataBlockEncoding(DataBlockEncoding.PREFIX_TREE);
-            //设置数据保留多版本
-            oneFamily.setMaxVersions(3);
-            tableDescriptor.addFamily(oneFamily);
-        }
-        //设置
-        admin.createTable(tableDescriptor);
-        return true;
     }
 
     /**
      * 删除表
+     *
      * @param tableName 表名
-     * @return
      */
     public boolean deleteTable(String tableName) throws Exception {
-        Admin admin = HBaseConnectionFactory.getConnection().getAdmin();
-        if (!admin.tableExists(TableName.valueOf(tableName))) {
-            return false;
+        Admin admin = null;
+        try {
+            admin = HBaseConnectionFactory.getConnection().getAdmin();
+            if (!admin.tableExists(TableName.valueOf(tableName))) {
+                return false;
+            }
+            //删除之前要将表disable
+            if (!admin.isTableDisabled(TableName.valueOf(tableName))) {
+                admin.disableTable(TableName.valueOf(tableName));
+            }
+            admin.deleteTable(TableName.valueOf(tableName));
+            return true;
+        } finally {
+            if (null != admin) {
+                admin.close();
+            }
         }
-        //删除之前要将表disable
-        if (!admin.isTableDisabled(TableName.valueOf(tableName))) {
-            admin.disableTable(TableName.valueOf(tableName));
-        }
-        admin.deleteTable(TableName.valueOf(tableName));
-        return true;
     }
 
 
@@ -62,12 +82,18 @@ public class TableDemo {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         TableDemo tableDemo = new TableDemo();
-        //新建表
-        System.out.println(tableDemo.createTable("s_behavior"+format.format(calendar.getTime()),"pc","ph"));
 
-        calendar.add(Calendar.MONTH,-1);
-        //删除表
-        System.out.println(tableDemo.deleteTable("s_behavior"+format.format(calendar.getTime())));
+        String tableNameSuffix = format.format(calendar.getTime());
+        String tableName = Constants.TABLE + tableNameSuffix;
+        //新建表
+        System.out.println(
+            "创建table结果：" + tableDemo.createTable(tableName, Constants.CF_PC, Constants.CF_PHONE));
+
+        calendar.add(Calendar.MONTH, -1);
+        String lastMonthTableNameSuffix = format.format(calendar.getTime());
+        String lastMonthTableName = Constants.TABLE + lastMonthTableNameSuffix;
+        //删除表，删除之前有disable表
+        System.out.println("删除table结果：" + tableDemo.deleteTable(lastMonthTableName));
     }
 
 }

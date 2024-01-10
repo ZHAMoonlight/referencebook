@@ -2,46 +2,57 @@ package com.mt.hbase.chpt09.client;
 
 import com.mt.hbase.chpt05.rowkeydesign.RowKeyUtil;
 import com.mt.hbase.connection.HBaseConnectionFactory;
+import com.mt.hbase.constants.Constants;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.BufferedMutator;
+import org.apache.hadoop.hbase.client.BufferedMutatorParams;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * @author pengxu
+ */
 public class ClientBuffer {
 
-
-    private static final String TABLE="s_behavior";
-
-    private static final String CF_PC="pc";
-
-    private static final String COLUMN_VIEW="v";
-
-    private static final long userId = 12345;
-
-    private static RowKeyUtil rowKeyUtil = new RowKeyUtil();
-
     public static void main(String[] args) throws IOException, InterruptedException {
-        List<Put> actions = new ArrayList<Put>();
-        Put put = new Put(Bytes.toBytes(generateRowkey(userId,System.currentTimeMillis(),1)));
-        put.addColumn(Bytes.toBytes(CF_PC), Bytes.toBytes(COLUMN_VIEW),
-                Bytes.toBytes("1001"));
-        actions.add(put);
-        HTable table = (HTable)HBaseConnectionFactory.getConnection().getTable(TableName.valueOf(TABLE));
-
-        table.setAutoFlushTo(false);
-        table.setWriteBufferSize(1024 * 1024 * 10);// 缓存大小10M
-
-        Object[] results = new Object[actions.size()];
-        table.batch(actions, results);
+        doBufferedMutator();
     }
-
-    private static String generateRowkey(long userId, long timestamp, long seqId){
-        return rowKeyUtil.formatUserId(userId)+ rowKeyUtil.formatTimeStamp(timestamp)+seqId;
+    /**
+     * 批量、异步向hbase写入数据
+     */
+    private static void doBufferedMutator() {
+        final BufferedMutator.ExceptionListener listener = new BufferedMutator.ExceptionListener() {
+            @Override
+            public void onException(RetriesExhaustedWithDetailsException e,
+                BufferedMutator mutator) {
+                for (int i = 0; i < e.getNumExceptions(); i++) {
+                    System.out.println("error mutator: " + e.getRow(i));
+                }
+            }
+        };
+        BufferedMutatorParams params = new BufferedMutatorParams(TableName.valueOf(Constants.TABLE))
+            .listener(listener);
+        params.writeBufferSize(10*1024*1024);
+        try {
+            Connection conn = HBaseConnectionFactory.getConnection();
+            BufferedMutator mutator = conn.getBufferedMutator(params);
+            List<Put> actions = new ArrayList<Put>();
+            Put put = new Put(Bytes.toBytes("rowkey1"));
+            put.addColumn(Bytes.toBytes(Constants.CF_PC), Bytes.toBytes(Constants.COLUMN_VIEW),
+                Bytes.toBytes("value1"));
+            actions.add(put);
+            mutator.mutate(actions);
+            mutator.close();
+            conn.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
 }

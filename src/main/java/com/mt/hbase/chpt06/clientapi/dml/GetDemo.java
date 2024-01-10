@@ -1,6 +1,7 @@
 package com.mt.hbase.chpt06.clientapi.dml;
 
 import com.mt.hbase.connection.HBaseConnectionFactory;
+import com.mt.hbase.constants.Constants;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
@@ -16,37 +17,33 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author pengxu
+ */
 public class GetDemo {
-
-    private static final String TABLE="s_behavior";
-
-    private static final String CF_PC="pc";
-    private static final String CF_PHONE="ph";
-
-    private static final String COLUMN_VIEW="v";
-
-    private static final String COLUMN_ORDER="o";
-
 
     public static void main(String[] args) throws IOException, InterruptedException,
             ParseException {
         List<Get> gets = new ArrayList<Get>();
-        Get oneGet = new Get(Bytes.toBytes("54321000000000000000092233705146317032071"));
+        Get oneGet = new Get(Bytes.toBytes("54321000000000000000092233703344678657363"));
         //设置需要Get的数据列族
-        oneGet.addFamily(Bytes.toBytes(CF_PC));
+        oneGet.addFamily(Bytes.toBytes(Constants.CF_PC));
         //设置需要Get的数据列
-        //oneGet.addColumn(Bytes.toBytes(CF_PHONE),Bytes.toBytes(COLUMN_ORDER));
-        //设置Get的数据时间范围为2018-01-01到现在
+        oneGet.addColumn(Bytes.toBytes(Constants.CF_PC),Bytes.toBytes(Constants.COLUMN_ORDER));
+        oneGet.addColumn(Bytes.toBytes(Constants.CF_PC),Bytes.toBytes(Constants.COLUMN_VIEW));
+        /**
+         *  设置Get的数据时间范围为2018-01-01到现在
+         */
         String startS = "2018-01-01";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date startDate = dateFormat.parse(startS);
         oneGet.setTimeRange(startDate.getTime(),System.currentTimeMillis());
 
         //设置Get的数据版本为2
-        oneGet.setMaxVersions(2);
+        oneGet.readVersions(1);
         gets.add(oneGet);
 
-        Table table = HBaseConnectionFactory.getConnection().getTable(TableName.valueOf(TABLE));
+        Table table = HBaseConnectionFactory.getConnection().getTable(TableName.valueOf(Constants.TABLE));
         Result[] results = table.get(gets);
         for(Result result : results){
             if (null != result.getRow()) {
@@ -59,10 +56,10 @@ public class GetDemo {
                 }
             }
         }
-
+        table.close();
         /**
          * 输出结果如下所示：
-         * rowkey=54321000000000000000092233705146317032071
+         * rowkey=54321000000000000000092233703937313212871
          * qualifier=o,value=1002
          * qualifier=v,value=1002
          */

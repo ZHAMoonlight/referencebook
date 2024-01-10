@@ -1,6 +1,6 @@
 syntax = "proto3";
-option java_package = "com.mt.hbase.chpt08.coprocessor.generated";
-option java_outer_classname = "SumDTO";
+option java_package = "com.mt.hbase.chpt08.coprocessor.v3.generated";
+option java_outer_classname = "SumDTOV3";
 option java_generic_services = true;
 option java_generate_equals_and_hash = true;
 

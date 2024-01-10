@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>dfs.nameservices</name>
+    <value>mtcluster</value>
+  </property>
+
+  <property>
+    <name>dfs.ha.namenodes.mtcluster</name>
+    <value>nn1,nn2</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.rpc-address.mtcluster.nn1</name>
+    <value>master1:9000</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.rpc-address.mtcluster.nn2</name>
+    <value>master2:9000</value>
+  </property>
+  
+  <property>
+    <name>dfs.namenode.http-address.mtcluster.nn1</name>
+    <value>master1:50070</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.http-address.mtcluster.nn2</name>
+    <value>master2:50070</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.servicerpc-address.mtcluster.nn1</name>
+    <value>master1:53310</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.servicerpc-address.mtcluster.nn2</name>
+    <value>master2:53310</value>
+  </property>
+ 
+  <property>
+    <name>dfs.namenode.name.dir.mtcluster</name>
+    <value>/home/hadoop/data01/nn</value>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>dfs.namenode.shared.edits.dir</name>
+    <value>qjournal://master1:8485;master2:8485;slave1:8485/mtcluster</value>
+  </property>
+
+  <!--为了避免Hadoop NameNode单点故障，一般会在集群中部署两个NameNode，该参数设置为true
+    的时候表示开启高可用，即当当前活跃的NameNode故障时，另外一个NameNode会自动从备用状态转为
+    活跃状态提供服务-->
+  <property>
+    <name>dfs.ha.automatic-failover.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>dfs.client.failover.proxy.provider.mtcluster</name>
+    <value>
+    org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+    </value>
+  </property>
+
+  <property>
+     <name>dfs.journalnode.edits.dir</name>
+     <value>/home/hadoop/data01/tmp/journal</value>
+  </property>
+
+  <property>
+     <name>dfs.ha.fencing.methods</name>
+     <value>sshfence(hadoop:16120)</value>
+  </property>
+
+  <property>
+     <name>dfs.ha.fencing.ssh.private-key-files</name>
+     <value>/home/hadoop/.ssh/id_rsa</value>
+  </property>
+
+  <!--指定HDFS DataNode数据存储的路径，一般建议一台机器挂载多个盘，一方面可以增大存储容量，另
+    一方面可以减少磁盘单点故障以及磁盘读写压力-->
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>
+      /home/hadoop/data01/dn,/home/hadoop/data02/dn,/home/hadoop/data03/dn,/home/hadoop/data04/dn
+    </value>
+    <final>true</final>
+  </property>
+        
+  <property>
+    <name>dfs.namenode.checkpoint.dir.mtcluster</name>
+    <value>/home/hadoop/data01/dfs/namesecondary</value>
+    <final>true</final>
+  </property>
+
+  <!-- 表示每个DataNode上面需要预留的空间，以免DataNode写数据将磁盘耗尽 -->
+  <property>
+    <!-- space amount in bytes reserved on the storage volumes for non-HDFS use -->
+    <name>dfs.datanode.du.reserved</name>
+    <value>10000000000</value>
+    <final>true</final>
+  </property>
+
+  <property>    
+    <name>dfs.hosts.exclude</name>    
+    <value>/home/hadoop/hadoop-2.10.1/etc/hadoop/hosts.exclude</value>   
+  </property>
+
+  <property>
+    <name>dfs.hosts</name>
+    <value>/home/hadoop/hadoop-2.10.1/etc/hadoop/hosts.allow</value>
+  </property>
+  
+  <!--每个数据块保留的备份数据，用来保证数据的高可用 -->
+  <property>
+    <name>dfs.replication</name>
+    <value>3</value>
+    <final>true</final>
+  </property>
+  
+  <!-- 限制HDFS负载均衡运行时占用的最大带宽 -->
+  <property>
+     <name>dfs.datanode.balance.bandwidthPerSec</name>
+     <value>104857600</value>
+     <description>
+         Specifies the maximum amount of bandwidth that each datanode can utilize 
+         for the balancing purpose in term of the number of bytes per second.
+     </description>
+  </property>
+
+  <!-- 设置DataNode可以容忍的坏盘数量，如果配置为0，则表示不容许有坏盘。当有坏盘时，DataNode启
+    动会失败-->
+  <property>
+     <name>dfs.datanode.failed.volumes.tolerated</name>
+     <value>1</value>
+  </property>
+
+  <!--配合HBase或者其他dfs客户端使用，表示开启短路径读，可以用来优化客户端性能，需要配合dfs. 
+    domain.socket.path使用，具体可参见9.2.6节-->
+   <property>
+     <name>dfs.client.read.shortcircuit</name>
+     <value>true</value>
+   </property>
+   <property>
+     <name>dfs.domain.socket.path</name>
+     <value>/home/hadoop/hadoop-2.10.1/dn_socket</value>
+   </property>
+</configuration>

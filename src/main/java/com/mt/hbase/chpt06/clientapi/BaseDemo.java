@@ -1,5 +1,6 @@
 package com.mt.hbase.chpt06.clientapi;
 
+import com.mt.hbase.constants.Constants;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -10,21 +11,21 @@ import java.io.IOException;
 
 public class BaseDemo {
 
-    protected static final String TABLE = "s_behavior";
+    protected static final String TABLE = Constants.TABLE;
 
-    protected static final String CF_PC="pc";
-    protected static final String CF_PHONE="ph";
+    protected static final String CF_PC = Constants.CF_PC;
+    protected static final String CF_PHONE = Constants.CF_PHONE;
 
-    protected static final String COLUMN_VIEW="v";
+    protected static final String COLUMN_VIEW = Constants.COLUMN_VIEW;
 
-    protected static final String COLUMN_ORDER="o";
+    protected static final String COLUMN_ORDER = Constants.COLUMN_ORDER;
 
 
     protected static void printResult(ResultScanner resultScanner) throws IOException {
         Result result = null;
         while ((result = resultScanner.next()) != null) {
             if (result.getRow() == null) {
-                continue;// keyvalues=NONE
+                continue;// key-values=NONE
             }
             Cell[] cells = result.rawCells();
             System.out.println("rowkey=" + Bytes.toString(result.getRow()));
