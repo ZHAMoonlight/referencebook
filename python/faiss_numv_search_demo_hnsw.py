@@ -13,7 +13,7 @@ database_vectors = np.random.random((nb, d)).astype('float32')
 #index = faiss.IndexFlatL2(d)
 
 # 创建一个 HNSW 索引
-index = faiss.IndexHNSWFlat(d, 32) # 这里的 16 是 HNSW 的 M 参数
+index = faiss.IndexHNSWFlat(d, 16) # 这里的 16 是 HNSW 的 M 参数
 add_index_start_time = time.time()
 # 添加数据到索引
 index.add(database_vectors)
