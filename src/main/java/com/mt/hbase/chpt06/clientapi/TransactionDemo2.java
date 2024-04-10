@@ -15,11 +15,16 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
+ *
+ *
  * @author pengxu
  * @Date 2022/01/31.
  */
 public class TransactionDemo2 {
 
+    /**
+     * create 's_transaction_test',{NAME => 'cf'}
+     */
     private static final String TABLE = "s_transaction_test";
     private static final String COLUMN_FAMILY = "cf";
     private static final int PUT_COUNT = 1000;
@@ -59,7 +64,7 @@ public class TransactionDemo2 {
             /**
              * 设置事务隔离级别为 读已提交
              */
-            scan.setIsolationLevel(IsolationLevel.READ_COMMITTED);
+            scan.setIsolationLevel(IsolationLevel.READ_UNCOMMITTED);
             table = HBaseConnectionFactory.getConnection().getTable(TableName.valueOf(TABLE));
             ResultScanner resultScanner = table.getScanner(scan);
             Result result = null;
