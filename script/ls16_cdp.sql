@@ -35,6 +35,7 @@ CREATE TABLE cdp_user_event
     event_time     DATETIME COMMENT '事件发生时间',
     event_type     VARCHAR(50) COMMENT '事件类型，pay,add_shop_cat,browse,recharge等',
     unique_user_id BIGINT NOT NULL COMMENT '用户全局唯一ID，ONE-ID',
+    order_no VARCHAR(64) COMMENT '订单唯一编号',
     page_id        INT COMMENT '浏览事件页面ID',
     item_id        ARRAY< INT > COMMENT '浏览、加购、下单事件中商品ID',
     total_amount   DECIMAL(18, 2) COMMENT '订单金额',
@@ -47,25 +48,6 @@ DISTRIBUTED BY HASH(event_type,unique_user_id)
 PROPERTIES (
 "replication_num" = "1"
 );
-
-CREATE TABLE cdp_user_event
-(
-    event_time     DATETIME COMMENT '事件发生时间',
-    event_type     VARCHAR(50) COMMENT '事件类型，pay,add_shop_cat,browse,recharge等',
-    unique_user_id BIGINT NOT NULL COMMENT '用户全局唯一ID，ONE-ID',
-    page_id        INT COMMENT '浏览事件页面ID',
-    item_id        ARRAY< INT > COMMENT '浏览、加购、下单事件中商品ID',
-    total_amount   DECIMAL(18, 2) COMMENT '订单金额',
-    device_type    VARCHAR(50) COMMENT '设备类型',
-    event_param    JSON COMMENT '事件相关参数，比如购买事件商品ID、支付金额等',
-    location       VARCHAR(100) COMMENT '发生地点，如城市、门店等'
-) DUPLICATE KEY(event_time,event_type)
-PARTITION BY date_trunc('day', event_time)
-DISTRIBUTED BY HASH(event_type,unique_user_id)
-PROPERTIES (
-"replication_num" = "1"
-);
-
 
 CREATE TABLE cdp_user_tag
 (
