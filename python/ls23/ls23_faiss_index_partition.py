@@ -41,7 +41,7 @@ index.train(np.array(face_encodings_list))
 
 index.add_with_ids(np.array(face_encodings_list), face_id_list)
 
-@app.route('/recognize', methods=['POST'])
+@app.route('/recognize_file', methods=['POST'])
 def recognize_face_file():
     # 从请求中获取上传的图片文件
     image_file = request.files['image']
