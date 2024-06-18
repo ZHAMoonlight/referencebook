@@ -1,0 +1,14 @@
+langchain==0.2.3
+openai==1.34.0
+pdf2image==1.16.3
+pypdf==3.8.1
+streamlit==1.22.0
+StrEnum==0.4.10
+tiktoken==0.4.0
+fastapi==0.95.2
+python-multipart==0.0.6
+uvicorn==0.30.1
+pypandoc==1.11
+docx2txt==0.8
+python-jose==3.3.0
+pymilvus==2.3.7
