@@ -1,5 +1,4 @@
-import bs4
-from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_milvus import Milvus
 
 from langchain_core.documents import Document
@@ -8,16 +7,12 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
 
-path = "https://lilianweng.github.io/posts/2023-06-23-agent/"
-# Load, chunk and index the contents of the blog.
-loader = WebBaseLoader(
-    web_paths=(path,),
-    bs_kwargs=dict(
-        parse_only=bs4.SoupStrainer(
-            class_=("post-content", "post-title", "post-header")
-        )
-    ),
-)
+import os
+
+file_path = "启明创投x未尽研究 生成式AI报告.pdf"
+file_name = os.path.basename(file_path)
+
+loader = PyPDFLoader(file_path)
 docs = loader.load()
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -28,8 +23,8 @@ MILVUS_PORT = "19530"
 
 COLLECTION_NAME = "RAG_COLLECTION"
 
-OPENAI_API_KEY = "sk-xxx"
-OPENAI_API_BASE = "https://proxyhost:port/"
+OPENAI_API_KEY = "sk-xxxxxx"
+OPENAI_API_BASE = "https://proxyhost:port/v1"
 
 embeddings = OpenAIEmbeddings(
     model="text-embedding-3-small",
@@ -51,9 +46,9 @@ vector_db = Milvus(
 for doc in splits:
     metadata = {
         "user_id": 1001,
-        "file_sha1": path,
+        "file_sha1": file_name,
         "file_size": len(splits),
-        "file_name": path,
+        "file_name": file_name,
         "chunk_size": 500,
         "chunk_overlap": 200,
         "date": "2023-06-03"
@@ -74,5 +69,5 @@ Helpful Answer:"""
 
 rag_prompt_custom = PromptTemplate.from_template(template)
 rag_chain = ({"context": retriever, "question": RunnablePassthrough()} | rag_prompt_custom | llm)
-result = rag_chain.invoke("What is Task Decomposition?")
+result = rag_chain.invoke("生成式人工智能不仅意味着技术变革，还意味着流程再造。面对AI2.0的冲击，市场诞生了哪三类玩家？?")
 print(result)

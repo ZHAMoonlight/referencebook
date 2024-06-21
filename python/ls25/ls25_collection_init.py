@@ -2,7 +2,7 @@ from pymilvus import MilvusClient, DataType
 
 # 1、初始化Milvus客户端
 client = MilvusClient(
-    uri='http://127.0.0.1:19530',
+    uri='http://172.31.13.171:31115',
 )
 
 # 2. Create schema
