@@ -11,9 +11,10 @@ CREATE TABLE cdp_user_local on cluster default(
   register_date DateTime64 COMMENT '注册日期',
   last_login_time DateTime64 COMMENT '最后一次登录时间'
 ) ENGINE = MergeTree()
-    PARTITION BY register_date
+    PARTITION BY toYYYYMMDD(register_date)
     PRIMARY KEY unique_user_id
     ORDER BY unique_user_id;
+
 
 CREATE TABLE cdp_user_all on cluster default as cdp_user_local
     ENGINE = Distributed(default, 'cdp', 'cdp_user_local', unique_user_id);
